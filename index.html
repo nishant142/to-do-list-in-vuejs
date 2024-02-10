@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List App</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Nishant's To-Do List</h1>
+    <input type="text" v-model="newTask" placeholder="Add new task">
+    <button @click="addTask">Add Task</button>
+    
+    <ul>
+      <li v-for="(task, index) in tasks" :key="index">
+        <input type="checkbox" v-model="task.completed" @change="updateTask(index)">
+        <span :class="{ completed: task.completed }">{{ task.title }}</span>
+        <span class="creation-date">{{ task.created_at }}</span>
+        <button @click="deleteTask(index)">Delete</button>
+      </li>
+    </ul>
+    
+    <h2>Completed Tasks</h2>
+    <ul>
+      <li v-for="(task, index) in completedTasks" :key="index">
+        <span>{{ task.title }}</span>
+        <button @click="deleteCompletedTask(index)">Delete</button>
+      </li>
+    </ul>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          newTask: '',
+          tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+        };
+      },
+      computed: {
+        completedTasks() {
+          return this.tasks.filter(task => task.completed);
+        }
+      },
+      methods: {
+        addTask() {
+          if (this.newTask.trim() !== '') {
+            this.tasks.push({
+              title: this.newTask,
+              completed: false,
+              created_at: new Date().toLocaleString()
+            });
+            this.newTask = '';
+            this.saveTasks();
+          }
+        },
+        updateTask(index) {
+          this.tasks[index].completed = !this.tasks[index].completed;
+          this.saveTasks();
+        },
+        deleteTask(index) {
+          this.tasks.splice(index, 1);
+          this.saveTasks();
+        },
+        deleteCompletedTask(index) {
+          this.completedTasks.splice(index, 1);
+          this.saveTasks();
+        },
+        saveTasks() {
+          localStorage.setItem('tasks', JSON.stringify(this.tasks));
+        }
+      }
+    });
+  </script>
+</body>
+</html>
